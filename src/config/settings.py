@@ -410,6 +410,14 @@ if __name__ == "__main__":
     for field in sensitive_fields:
         if field in config and config[field]:
             config[field] = "***MASKED***"
+
+     # Upstox API
+    upstox_access_token: str = Field(
+        default="",
+        env="UPSTOX_ACCESS_TOKEN",
+        description="Upstox API access token"
+    )
+
     
     # Print nicely formatted
     print(json.dumps(config, indent=2, default=str))
