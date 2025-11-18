@@ -1,22 +1,22 @@
 """
-Event definitions for the trading system
-All events inherit from BaseEvent
+Event Definitions
+All event types used in the system
 """
 
 from .base import BaseEvent
 from .tick_events import TickReceivedEvent
 from .candle_events import CandleCompletedEvent
 from .signal_events import (
-    SellerStateDetectedEvent,
-    BuySignalGeneratedEvent,
-    SellSignalGeneratedEvent
+    SignalGeneratedEvent,
+    SignalExecutedEvent,
+    SignalClosedEvent
 )
 
 __all__ = [
     "BaseEvent",
     "TickReceivedEvent",
     "CandleCompletedEvent",
-    "SellerStateDetectedEvent",
-    "BuySignalGeneratedEvent",
-    "SellSignalGeneratedEvent",
+    "SignalGeneratedEvent",
+    "SignalExecutedEvent",
+    "SignalClosedEvent",
 ]
