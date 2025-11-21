@@ -29,8 +29,8 @@
   "poa": false,
   "ddpi": false,
   "is_active": true,
-  "access_token": "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkJSUkUiLCJqdGkiOiI2OTFiZjg0MGQxZGZmMTE1NmQzYzU1MWYiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzYzNDQwNzA0LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3NjM1MDMyMDB9.Z9M-_0QkgdZpEWI4sZRVT9KeSwbdZEfEXsnR0mVhhOs",
+  "access_token": "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkJSUkUiLCJqdGkiOiI2OTIwNTFhN2NmYzJkNzQ4ZWQwN2I5MmEiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzYzNzI1NzM1LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3NjM3NjI0MDB9.DNMlsDrxXSNjW69hTTqHIJyg_9iByvGfkYCVse7gPTs",
   "extended_token": null,
-  "generated_at": "2025-11-18T10:08:24.338181",
-  "expires_at": "2025-11-19T10:08:24.338370"
+  "generated_at": "2025-11-21T17:18:56.580299",
+  "expires_at": "2025-11-22T17:18:56.580637"
 }

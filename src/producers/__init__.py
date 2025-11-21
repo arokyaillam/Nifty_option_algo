@@ -1,12 +1,13 @@
 """
 Data Producers
-Stream market data and publish to event bus
 """
 
 from .mock_producer import MockTickProducer
-from .upstox_producer import UpstoxProducer
+from .panic_mock_producer import PanicMockProducer
+from .upstox_live_producer import UpstoxLiveProducer
 
 __all__ = [
     "MockTickProducer",
-    "UpstoxProducer",
+    "PanicMockProducer",
+    "UpstoxLiveProducer",
 ]
