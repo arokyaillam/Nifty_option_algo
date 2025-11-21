@@ -1,7 +1,36 @@
 {
-  "access_token": "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkJSUkUiLCJqdGkiOiI2OTFiZGJlNmVmNjIyNjBhYTYwNDI5Y2QiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzYzNDMzNDQ2LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3NjM1MDMyMDB9.chIs28qglCZfgClpWEhuC9kh9AL-Nami6XFrhtobKGw",
-  "token_type": "Bearer",
-  "expires_in": 86400,
-  "generated_at": "2025-11-18T08:07:35.738987",
-  "expires_at": "2025-11-19T08:07:35.751096"
+  "email": "m8248603646@gmail.com",
+  "exchanges": [
+    "BCD",
+    "BSE",
+    "BFO",
+    "MCX",
+    "CDS",
+    "NSE",
+    "NFO"
+  ],
+  "products": [
+    "OCO",
+    "D",
+    "CO",
+    "I",
+    "MTF"
+  ],
+  "broker": "UPSTOX",
+  "user_id": "7BBRRE",
+  "user_name": "ANTONYRAJ GNANASUNDARAM",
+  "order_types": [
+    "MARKET",
+    "LIMIT",
+    "SL",
+    "SL-M"
+  ],
+  "user_type": "individual",
+  "poa": false,
+  "ddpi": false,
+  "is_active": true,
+  "access_token": "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkJSUkUiLCJqdGkiOiI2OTFiZjg0MGQxZGZmMTE1NmQzYzU1MWYiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzYzNDQwNzA0LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3NjM1MDMyMDB9.Z9M-_0QkgdZpEWI4sZRVT9KeSwbdZEfEXsnR0mVhhOs",
+  "extended_token": null,
+  "generated_at": "2025-11-18T10:08:24.338181",
+  "expires_at": "2025-11-19T10:08:24.338370"
 }
