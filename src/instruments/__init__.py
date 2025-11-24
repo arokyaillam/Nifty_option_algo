@@ -2,8 +2,8 @@
 Instrument Management
 """
 
-from .sync_service import OptionContractFetcher
+from .sync_service import InstrumentSyncService
 
 __all__ = [
-    "OptionContractFetcher",
+    "InstrumentSyncService",
 ]
