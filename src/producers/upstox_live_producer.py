@@ -220,7 +220,7 @@ class UpstoxLiveProducer:
             "guid": "trading_system",
             "method": "sub",
             "data": {
-                "mode": "full",
+                "mode": "full_d30",
                 "instrumentKeys": self.instrument_keys
             }
         }
