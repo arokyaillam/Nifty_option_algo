@@ -17,7 +17,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.event_bus.bus import EventBus
-from src.producers.panic_mock_producer import PanicMockProducer
+from src.producers.upstox_live_producer import UpstoxLiveProducer
 from src.consumers.candle_builder import CandleBuilder
 from src.consumers.analysis_consumer import AnalysisConsumer
 from src.consumers.storage_consumer import StorageConsumer
@@ -52,16 +52,24 @@ class ServiceInfo:
 class ServiceManager:
     """
     Manage all system services
-    
+
     Services:
-    - Producer (panic mock)
+    - Producer (Upstox live)
     - Candle Builder
     - Analysis Consumer
     - Storage Consumer
     """
-    
-    def __init__(self):
-        """Initialize service manager"""
+
+    def __init__(self, spot_price: float, expiry_date: str):
+        """
+        Initialize service manager
+
+        Args:
+            spot_price: Nifty spot price
+            expiry_date: Expiry date (YYYY-MM-DD)
+        """
+        self.spot_price = spot_price
+        self.expiry_date = expiry_date
         self.services: Dict[str, ServiceInfo] = {}
         self.event_bus: Optional[EventBus] = None
         self._shutdown_event = asyncio.Event()
@@ -77,34 +85,32 @@ class ServiceManager:
         return info
     
     async def start_producer(self):
-        """Start panic mock producer"""
-        service_name = "producer"
+        """Start Upstox live producer"""
+        service_name = "upstox_producer"
         info = self._create_service_info(service_name)
-        
+
         try:
             info.status = ServiceStatus.STARTING
             logger.info(f"🚀 Starting {service_name}...")
-            
-            producer = PanicMockProducer(
-                instrument_key="NSE_FO|61755",
-                base_price=182.00,
-                tick_interval=0.1,
-                event_bus=self.event_bus,
-                panic_probability=0.20  # 20% panic scenarios
+
+            producer = UpstoxLiveProducer(
+                spot_price=self.spot_price,
+                expiry_date=self.expiry_date,
+                event_bus=self.event_bus
             )
-            
+
             info.task = asyncio.create_task(producer.start())
             info.status = ServiceStatus.RUNNING
             info.started_at = datetime.now()
-            
+
             logger.info(f"✅ {service_name} started")
-            
+
             await info.task
-        
+
         except asyncio.CancelledError:
             logger.info(f"🛑 {service_name} cancelled")
             info.status = ServiceStatus.STOPPED
-        
+
         except Exception as e:
             logger.error(f"❌ {service_name} error: {e}", exc_info=True)
             info.status = ServiceStatus.ERROR
@@ -303,12 +309,26 @@ if __name__ == "__main__":
     """
     
     async def test():
-        manager = ServiceManager()
-        
+        print("=" * 70)
+        print("Service Manager Test")
+        print("=" * 70)
+        print()
+
+        # Get inputs
+        spot = float(input("Enter Nifty spot price: "))
+        expiry = input("Enter expiry date (YYYY-MM-DD): ").strip()
+
+        print()
+
+        manager = ServiceManager(
+            spot_price=spot,
+            expiry_date=expiry
+        )
+
         # Setup signal handlers
         signal.signal(signal.SIGINT, manager.signal_handler)
         signal.signal(signal.SIGTERM, manager.signal_handler)
-        
+
         await manager.start_all()
-    
+
     asyncio.run(test())

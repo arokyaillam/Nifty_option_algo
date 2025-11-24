@@ -320,10 +320,17 @@ class CandleBuilder:
                 tick.instrument_key,
                 tick.candle_time
             )
-            
+
             # Add tick to candle
             candle.add_tick(tick)
-            
+
+            # Log first few ticks for visibility
+            if self._running and candle.tick_count <= 3:
+                logger.info(
+                    f"📥 Tick received: {tick.instrument_key} @ {tick.candle_time.strftime('%H:%M')} | "
+                    f"LTP: ₹{tick.ltp} | Building candle (ticks: {candle.tick_count})"
+                )
+
         except Exception as e:
             logger.error(f"❌ Error handling tick: {e}", exc_info=True)
     

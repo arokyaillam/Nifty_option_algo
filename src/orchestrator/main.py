@@ -27,21 +27,33 @@ logger = logging.getLogger(__name__)
 class MainOrchestrator:
     """
     Main system orchestrator
-    
+
     Manages:
     - All services (producer, consumers)
     - Health monitoring
     - Graceful shutdown
     """
-    
-    def __init__(self, enable_health_monitor: bool = True):
+
+    def __init__(
+        self,
+        spot_price: float,
+        expiry_date: str,
+        enable_health_monitor: bool = True
+    ):
         """
         Initialize orchestrator
-        
+
         Args:
+            spot_price: Nifty spot price
+            expiry_date: Expiry date (YYYY-MM-DD)
             enable_health_monitor: Enable health monitoring
         """
-        self.service_manager = ServiceManager()
+        self.spot_price = spot_price
+        self.expiry_date = expiry_date
+        self.service_manager = ServiceManager(
+            spot_price=spot_price,
+            expiry_date=expiry_date
+        )
         self.health_monitor = HealthMonitor(check_interval=60) if enable_health_monitor else None
         self._shutdown_event = asyncio.Event()
     
@@ -105,8 +117,13 @@ System Information:
   • Redis: {settings.get_redis_url}
   • Database: {settings.postgres_db}
 
+Trading Configuration:
+  • Spot Price: {self.spot_price}
+  • Expiry Date: {self.expiry_date}
+  • Mode: LIVE (Upstox WebSocket)
+
 Features:
-  ✅ Real-time tick processing (10 ticks/sec)
+  ✅ Real-time tick processing (Upstox WebSocket)
   ✅ 1-minute candle aggregation
   ✅ Seller panic detection
   ✅ BUY/SELL signal generation
@@ -134,9 +151,24 @@ if __name__ == "__main__":
     """
     
     async def main():
-        orchestrator = MainOrchestrator(enable_health_monitor=True)
+        print("=" * 70)
+        print("Nifty Options Trading System - Live Mode")
+        print("=" * 70)
+        print()
+
+        # Get inputs
+        spot = float(input("Enter Nifty spot price: "))
+        expiry = input("Enter expiry date (YYYY-MM-DD): ").strip()
+
+        print()
+
+        orchestrator = MainOrchestrator(
+            spot_price=spot,
+            expiry_date=expiry,
+            enable_health_monitor=True
+        )
         await orchestrator.start()
-    
+
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

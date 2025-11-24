@@ -200,21 +200,22 @@ class UpstoxLiveProducer:
         if not PROTOBUF_FILE_AVAILABLE or pb is None:
             logger.error("❌ Protobuf not available")
             return None
-        
+
         try:
             feed_response = pb.FeedResponse()
             feed_response.ParseFromString(buffer)
-            return MessageToDict(feed_response, preserving_proto_field_name=True)
-        
+            # Don't use preserving_proto_field_name - use default camelCase like Upstox example
+            return MessageToDict(feed_response)
+
         except Exception as e:
-            logger.error(f"❌ Protobuf decode error: {e}")
+            logger.error(f"❌ Protobuf decode error: {e}", exc_info=True)
             return None
     
     async def subscribe_instruments(self):
         """Send subscription message"""
         if not self.websocket:
             return
-        
+
         subscription = {
             "guid": "trading_system",
             "method": "sub",
@@ -223,47 +224,90 @@ class UpstoxLiveProducer:
                 "instrumentKeys": self.instrument_keys
             }
         }
-        
+
+        logger.info(f"📡 Sending subscription for {len(self.instrument_keys)} instruments...")
+        logger.info(f"🔍 Subscription mode: full")
+        logger.info(f"🔍 First 3 instruments: {self.instrument_keys[:3]}")
+
         binary_data = json.dumps(subscription).encode('utf-8')
         await self.websocket.send(binary_data)
-        
-        logger.info(f"📡 Subscribed to {len(self.instrument_keys)} instruments")
+
+        logger.info(f"✅ Subscription message sent ({len(binary_data)} bytes)")
     
     async def handle_tick(self, message: bytes):
         """Handle incoming tick"""
         try:
+            # Log first few messages for debugging
+            if self.tick_count < 5:
+                logger.info(f"🔍 Received binary message (size: {len(message)} bytes)")
+
             data_dict = self.decode_protobuf(message)
-            
+
             if not data_dict:
+                logger.warning("⚠️  Decoded protobuf is empty")
                 return
-            
+
+            # Log decoded structure for first few messages
+            if self.tick_count < 3:
+                logger.info(f"🔍 Decoded data keys: {list(data_dict.keys())}")
+
             feeds = data_dict.get("feeds", {})
-            
+
+            if not feeds:
+                logger.warning("⚠️  No 'feeds' in decoded data")
+                if self.tick_count < 3:
+                    logger.info(f"🔍 Full decoded data: {data_dict}")
+                return
+
+            # Log feed info for first message
+            if self.tick_count == 0:
+                logger.info(f"🔍 Number of instruments in feed: {len(feeds)}")
+
             for instrument_key, feed_info in feeds.items():
-                full_feed = feed_info.get("ff", {})
-                
+                # Log feed structure for first tick
+                if self.tick_count == 0:
+                    logger.info(f"🔍 Feed info keys for {instrument_key}: {list(feed_info.keys())}")
+                    logger.info(f"🔍 Full feed_info structure: {feed_info}")
+
+                # Upstox protobuf uses "ff" for full feed
+                # Try both "ff" (preserved name) and possible camelCase variants
+                full_feed = feed_info.get("ff") or feed_info.get("Ff") or feed_info.get("fullFeed")
+
                 if not full_feed:
+                    if self.tick_count < 3:
+                        logger.warning(f"⚠️  No full feed data for {instrument_key}")
+                        logger.info(f"🔍 Available feed keys: {list(feed_info.keys())}")
+                        logger.info(f"🔍 Feed info dump: {feed_info}")
                     continue
-                
-                # Create tick event
+
+                # Log full feed structure for first tick
+                if self.tick_count == 0:
+                    logger.info(f"🔍 Full feed data keys: {list(full_feed.keys()) if isinstance(full_feed, dict) else 'not a dict'}")
+
+                # Create tick event - pass the full_feed as marketFF
+                # The from_upstox_feed expects: {"fullFeed": {"marketFF": {...}}}
+                # But Upstox sends: {"ff": {"marketFF": {...}}}
+                # So we wrap it:
                 tick_event = TickReceivedEvent.from_upstox_feed(
                     instrument_key=instrument_key,
                     feed_data={"fullFeed": full_feed}
                 )
-                
+
                 # Publish
                 await self.event_bus.publish(tick_event, "ticks")
-                
+
                 self.tick_count += 1
-                
-                if self.tick_count % 100 == 0:
+
+                # Log more frequently for visibility (every 10 ticks instead of 100)
+                if self.tick_count % 10 == 0:
                     logger.info(
                         f"📊 Tick #{self.tick_count} | "
-                        f"{instrument_key} @ {tick_event.ltp}"
+                        f"{instrument_key} @ ₹{tick_event.ltp} | "
+                        f"Vol: {tick_event.volume} | OI: {tick_event.oi}"
                     )
-        
+
         except Exception as e:
-            logger.error(f"❌ Error handling tick: {e}")
+            logger.error(f"❌ Error handling tick: {e}", exc_info=True)
     
     async def start(self):
         """Start live producer"""
@@ -331,15 +375,25 @@ class UpstoxLiveProducer:
                     
                     logger.info("🎧 Listening for ticks...")
                     logger.info("=" * 70)
-                    
+
+                    message_count = 0
+
                     # Listen
                     while self._running:
                         message = await websocket.recv()
-                        
+                        message_count += 1
+
+                        # Log first few messages
+                        if message_count <= 3:
+                            msg_type = "BINARY" if isinstance(message, bytes) else "TEXT"
+                            msg_size = len(message) if isinstance(message, bytes) else len(str(message))
+                            logger.info(f"📦 Message #{message_count}: {msg_type} ({msg_size} bytes)")
+
                         if isinstance(message, bytes):
                             await self.handle_tick(message)
                         else:
-                            logger.debug(f"📝 Text: {message}")
+                            # Text messages (subscription confirmations, errors, etc.)
+                            logger.info(f"📝 Text message: {message}")
             
             except asyncio.CancelledError:
                 logger.info("🛑 Producer stopped")
